@@ -1,49 +1,40 @@
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { useSelector, useDispatch } from '../../services/store';
+import { fetchOrderByNumber } from '../../services/slices/order-slice';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  const { number } = useParams<{ number: string }>();
+  const dispatch = useDispatch();
+  const { ingredients } = useSelector((state) => state.ingredients);
+  const { viewedOrderData } = useSelector((state) => state.order);
 
-  const ingredients: TIngredient[] = [];
+  useEffect(() => {
+    if (number) {
+      dispatch(fetchOrderByNumber(parseInt(number)));
+    }
+  }, [number, dispatch]);
 
-  /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
-    if (!orderData || !ingredients.length) return null;
+    if (!viewedOrderData || !ingredients.length) return null;
 
-    const date = new Date(orderData.createdAt);
+    const date = new Date(viewedOrderData.createdAt);
 
-    type TIngredientsWithCount = {
-      [key: string]: TIngredient & { count: number };
-    };
-
-    const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
+    const ingredientsInfo = viewedOrderData.ingredients.reduce(
+      (acc: Record<string, any>, item) => {
         if (!acc[item]) {
           const ingredient = ingredients.find((ing) => ing._id === item);
           if (ingredient) {
-            acc[item] = {
-              ...ingredient,
-              count: 1
-            };
+            acc[item] = { ...ingredient, count: 1 };
           }
         } else {
           acc[item].count++;
         }
-
         return acc;
       },
-      {}
+      {} as Record<string, any>
     );
 
     const total = Object.values(ingredientsInfo).reduce(
@@ -51,13 +42,8 @@ export const OrderInfo: FC = () => {
       0
     );
 
-    return {
-      ...orderData,
-      ingredientsInfo,
-      date,
-      total
-    };
-  }, [orderData, ingredients]);
+    return { ...viewedOrderData, ingredientsInfo, date, total };
+  }, [viewedOrderData, ingredients]);
 
   if (!orderInfo) {
     return <Preloader />;

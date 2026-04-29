@@ -1,24 +1,43 @@
 import { FC, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
+import { useSelector, useDispatch } from '../../services/store';
+import { clearConstructor } from '../../services/slices/constructor-slice';
+import { createOrder, clearNewOrder } from '../../services/slices/order-slice';
 
 export const BurgerConstructor: FC = () => {
-  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
-  const constructorItems = {
-    bun: {
-      price: 0
-    },
-    ingredients: []
-  };
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const orderRequest = false;
-
-  const orderModalData = null;
+  const constructorItems = useSelector((state) => state.constructorBurger);
+  const { newOrderData, orderRequest } = useSelector((state) => state.order);
+  const { user } = useSelector((state) => state.user);
 
   const onOrderClick = () => {
     if (!constructorItems.bun || orderRequest) return;
+
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    const ingredients = [
+      constructorItems.bun._id,
+      ...constructorItems.ingredients.map((item) => item._id),
+      constructorItems.bun._id
+    ];
+
+    dispatch(createOrder(ingredients)).then((action) => {
+      if (createOrder.fulfilled.match(action)) {
+        dispatch(clearConstructor());
+      }
+    });
   };
-  const closeOrderModal = () => {};
+
+  const closeOrderModal = () => {
+    dispatch(clearNewOrder());
+  };
 
   const price = useMemo(
     () =>
@@ -30,14 +49,12 @@ export const BurgerConstructor: FC = () => {
     [constructorItems]
   );
 
-  return null;
-
   return (
     <BurgerConstructorUI
       price={price}
       orderRequest={orderRequest}
       constructorItems={constructorItems}
-      orderModalData={orderModalData}
+      orderModalData={newOrderData}
       onOrderClick={onOrderClick}
       closeOrderModal={closeOrderModal}
     />
