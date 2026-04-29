@@ -9,7 +9,7 @@ export const OrderInfo: FC = () => {
   const { number } = useParams<{ number: string }>();
   const dispatch = useDispatch();
   const { ingredients } = useSelector((state) => state.ingredients);
-  const { orderModalData } = useSelector((state) => state.order);
+  const { viewedOrderData } = useSelector((state) => state.order);
 
   useEffect(() => {
     if (number) {
@@ -18,11 +18,11 @@ export const OrderInfo: FC = () => {
   }, [number, dispatch]);
 
   const orderInfo = useMemo(() => {
-    if (!orderModalData || !ingredients.length) return null;
+    if (!viewedOrderData || !ingredients.length) return null;
 
-    const date = new Date(orderModalData.createdAt);
+    const date = new Date(viewedOrderData.createdAt);
 
-    const ingredientsInfo = orderModalData.ingredients.reduce(
+    const ingredientsInfo = viewedOrderData.ingredients.reduce(
       (acc: Record<string, any>, item) => {
         if (!acc[item]) {
           const ingredient = ingredients.find((ing) => ing._id === item);
@@ -42,8 +42,8 @@ export const OrderInfo: FC = () => {
       0
     );
 
-    return { ...orderModalData, ingredientsInfo, date, total };
-  }, [orderModalData, ingredients]);
+    return { ...viewedOrderData, ingredientsInfo, date, total };
+  }, [viewedOrderData, ingredients]);
 
   if (!orderInfo) {
     return <Preloader />;

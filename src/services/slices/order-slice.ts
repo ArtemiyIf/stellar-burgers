@@ -3,12 +3,14 @@ import { orderBurgerApi, getOrderByNumberApi } from '@api';
 import { TOrder } from '@utils-types';
 
 interface OrderState {
-  orderModalData: TOrder | null;
+  newOrderData: TOrder | null;
+  viewedOrderData: TOrder | null;
   orderRequest: boolean;
 }
 
 const initialState: OrderState = {
-  orderModalData: null,
+  newOrderData: null,
+  viewedOrderData: null,
   orderRequest: false
 };
 
@@ -32,8 +34,8 @@ const orderSlice = createSlice({
   name: 'order',
   initialState,
   reducers: {
-    clearOrder: (state) => {
-      state.orderModalData = null;
+    clearNewOrder: (state) => {
+      state.newOrderData = null;
     }
   },
   extraReducers: (builder) => {
@@ -43,16 +45,16 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.orderRequest = false;
-        state.orderModalData = action.payload as any;
+        state.newOrderData = action.payload as any;
       })
       .addCase(createOrder.rejected, (state) => {
         state.orderRequest = false;
       })
       .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
-        state.orderModalData = action.payload;
+        state.viewedOrderData = action.payload;
       });
   }
 });
 
-export const { clearOrder } = orderSlice.actions;
+export const { clearNewOrder } = orderSlice.actions;
 export default orderSlice.reducer;

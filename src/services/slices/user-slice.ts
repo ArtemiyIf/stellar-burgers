@@ -136,7 +136,7 @@ const userSlice = createSlice({
       })
       .addCase(logoutUser.fulfilled, (s) => {
         s.user = null;
-        s.isAuthChecked = false;
+        s.isAuthChecked = true;
       });
   }
 });

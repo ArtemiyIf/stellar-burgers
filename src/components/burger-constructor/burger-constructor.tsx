@@ -4,14 +4,14 @@ import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
 import { useSelector, useDispatch } from '../../services/store';
 import { clearConstructor } from '../../services/slices/constructor-slice';
-import { createOrder, clearOrder } from '../../services/slices/order-slice';
+import { createOrder, clearNewOrder } from '../../services/slices/order-slice';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const constructorItems = useSelector((state) => state.constructorBurger);
-  const { orderModalData, orderRequest } = useSelector((state) => state.order);
+  const { newOrderData, orderRequest } = useSelector((state) => state.order);
   const { user } = useSelector((state) => state.user);
 
   const onOrderClick = () => {
@@ -36,7 +36,7 @@ export const BurgerConstructor: FC = () => {
   };
 
   const closeOrderModal = () => {
-    dispatch(clearOrder());
+    dispatch(clearNewOrder());
   };
 
   const price = useMemo(
@@ -54,7 +54,7 @@ export const BurgerConstructor: FC = () => {
       price={price}
       orderRequest={orderRequest}
       constructorItems={constructorItems}
-      orderModalData={orderModalData}
+      orderModalData={newOrderData}
       onOrderClick={onOrderClick}
       closeOrderModal={closeOrderModal}
     />
