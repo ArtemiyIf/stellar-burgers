@@ -32,8 +32,9 @@ const ingredientsSlice = createSlice({
         state.isLoading = false;
         state.ingredients = action.payload;
       })
-      .addCase(fetchIngredients.rejected, (state) => {
+      .addCase(fetchIngredients.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.error.message || 'Ошибка';
       });
   }
 });
